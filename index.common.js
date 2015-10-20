@@ -11,6 +11,7 @@ var {
   Text,
   View,
   TouchableHighlight,
+  Image,
 } = React;
 
 var RNFS = require('react-native-fs');
@@ -19,6 +20,9 @@ var testFile1Path = RNFS.DocumentDirectoryPath + '/test-file-1';
 var testFile2Path = RNFS.DocumentDirectoryPath + '/test-file-2';
 var testDir1Path = RNFS.DocumentDirectoryPath + '/test-dir-1';
 var testFile3Path = RNFS.DocumentDirectoryPath + '/test-dir-1/test-file-3';
+var testFile4Path = RNFS.DocumentDirectoryPath + '/test-file-4.png';
+
+var downloadUrl = 'http://facebook.github.io/react-native/img/opengraph.png';
 
 var RNFSApp = React.createClass({
   getInitialState: function() {
@@ -91,6 +95,13 @@ var RNFSApp = React.createClass({
     }).catch(err => this.showError(err));
   },
 
+  downloadFileTest: function() {
+    return RNFS.downloadFile(downloadUrl, testFile4Path).then(success => {
+      this.setState({ output: testFile4Path });
+      this.setState({ imagePath: { uri: 'file://' + testFile4Path } });
+    }).catch(err => this.showError(err));
+  },
+
   showError: function(err) {
     this.setState({ output: err.message });
   },
@@ -159,7 +170,19 @@ var RNFSApp = React.createClass({
           </View>
         </TouchableHighlight>
 
+        <View style={styles.button}>
+          <Text style={styles.text}>---</Text>
+        </View>
+
+        <TouchableHighlight onPress={this.downloadFileTest}>
+          <View style={styles.button}>
+            <Text style={styles.text}>Download File</Text>
+          </View>
+        </TouchableHighlight>
+
         <Text style={styles.text}>{this.state.output}</Text>
+
+        <Image style={styles.image} source={this.state.imagePath}></Image>
       </View>
     );
   }
@@ -178,6 +201,10 @@ var styles = StyleSheet.create({
     fontSize: 16,
     textAlign: 'center',
     margin: 10,
+  },
+  image: {
+    width: 100,
+    height: 100,
   },
 });
 
