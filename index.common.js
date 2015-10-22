@@ -16,48 +16,15 @@ var {
 
 var RNFS = require('react-native-fs');
 
-var testFile1Path = RNFS.DocumentDirectoryPath + '/test-file-1';
-var testFile2Path = RNFS.DocumentDirectoryPath + '/test-file-2';
 var testDir1Path = RNFS.DocumentDirectoryPath + '/test-dir-1';
-var testFile3Path = RNFS.DocumentDirectoryPath + '/test-dir-1/test-file-3';
-var testFile4Path = RNFS.DocumentDirectoryPath + '/test-file-4.png';
+var testFile1Path = RNFS.DocumentDirectoryPath + '/test-dir-1/test-file-1';
+var testFile2Path = RNFS.DocumentDirectoryPath + '/test-dir-1/test-file-2';
 
 var downloadUrl = 'http://facebook.github.io/react-native/img/opengraph.png';
 
 var RNFSApp = React.createClass({
   getInitialState: function() {
     return { output: '' };
-  },
-  writeTest: function() {
-    return Promise.all([
-      RNFS.writeFile(testFile1Path, 'I am the first file', {}),
-      RNFS.writeFile(testFile2Path, 'I am the second file', {})
-    ]).then(() => {
-      this.setState({ output: 'Files written successfully' });
-    }).catch(err => this.showError(err));
-  },
-  readTest: function() {
-    return RNFS.readFile(testFile1Path).then((data) => {
-      this.setState({ output: 'Contents: ' + data });
-    }).catch(err => this.showError(err));
-  },
-  readDirTest: function() {
-    return RNFS.readDir('/', RNFS.DocumentDirectory).then(files => {
-      var text = files.map(file => file.name + ' (' + file.size + ') (' + (file.isDirectory() ? 'd' : 'f') + ')').join('\n');
-      this.setState({ output: text });
-    }).catch(err => this.showError(err));
-  },
-  statTest: function() {
-    return RNFS.stat(testFile1Path).then(stat => {
-      var text = 'mtime: ' + stat.mtime + '\nsize: ' + stat.size + '\nisFile: ' + stat.isFile() + '\nisDirectory: ' + stat.isDirectory();
-      this.setState({ output: text });
-    }).catch(err => this.showError(err));
-  },
-  deleteTest: function() {
-    return RNFS.unlink(testFile1Path).then(success => {
-      var text = success.toString();
-      this.setState({ output: text });
-    }).catch(err => this.showError(err));
   },
 
   mkdirTest: function() {
@@ -67,23 +34,23 @@ var RNFSApp = React.createClass({
     }).catch(err => this.showError(err));
   },
   writeNestedTest: function() {
-    return RNFS.writeFile(testFile3Path, 'I am the third file', {}).then(() => {
+    return RNFS.writeFile(testFile1Path, 'I am a file in the directory', 'ascii').then(() => {
       this.setState({ output: 'Files written successfully' });
     }).catch(err => this.showError(err));
   },
   readNestedTest: function() {
-    return RNFS.readFile(testFile3Path).then((data) => {
+    return RNFS.readFile(testFile1Path).then((data) => {
       this.setState({ output: 'Contents: ' + data });
     }).catch(err => this.showError(err));
   },
   readDirNestedTest: function() {
-    return RNFS.readDir('/test-dir-1', RNFS.DocumentDirectory).then(files => {
+    return RNFS.readDir(testDir1Path).then(files => {
       var text = files.map(file => file.name + ' (' + file.size + ') (' + (file.isDirectory() ? 'd' : 'f') + ')').join('\n');
       this.setState({ output: text });
     }).catch(err => this.showError(err));
   },
   deleteNestedTest: function() {
-    return RNFS.unlink(testFile3Path).then(success => {
+    return RNFS.unlink(testFile1Path).then(success => {
       var text = success.toString();
       this.setState({ output: text });
     }).catch(err => this.showError(err));
@@ -96,9 +63,78 @@ var RNFSApp = React.createClass({
   },
 
   downloadFileTest: function() {
-    return RNFS.downloadFile(downloadUrl, testFile4Path).then(success => {
-      this.setState({ output: testFile4Path });
-      this.setState({ imagePath: { uri: 'file://' + testFile4Path } });
+    return RNFS.downloadFile(downloadUrl, testFile2Path).then(success => {
+      this.setState({ output: testFile2Path });
+      this.setState({ imagePath: { uri: 'file://' + testFile2Path } });
+    }).catch(err => this.showError(err));
+  },
+
+  assert: function(name, val, exp) {
+    if (exp !== val) throw new Error(name + ': "' + val + '" should be "' + exp + '"');
+    this.setState({ output: name });
+  },
+
+  autoTest1: function() {
+    var f1 = RNFS.DocumentDirectoryPath + '/f1';
+
+    return Promise.resolve().then(() => {
+      return RNFS.writeFile(f1, 'foo © bar 𝌆 baz', 'utf8').then(result => {
+        this.assert('Write F1', result[0], true);
+      });
+    }).then(() => {
+      return RNFS.readdir(RNFS.DocumentDirectoryPath).then(files => {
+        this.assert('F1 Visible', files.indexOf('f1') !== -1, true);
+      });
+    }).then(() => {
+      return RNFS.readFile(f1, 'utf8').then(contents => {
+        this.assert('Read F1', contents, 'foo © bar 𝌆 baz');
+      });
+    }).then(() => {
+      return RNFS.stat(f1).then(info => {
+        this.assert('Stat', info.size, 19);
+      });
+    }).then(() => {
+      return RNFS.unlink(f1).then(result => {
+        this.assert('Unlink', result[0], true);
+      });
+    }).then(result => {
+      return RNFS.readdir(RNFS.DocumentDirectoryPath).then(files => {
+        this.assert('F1 Gone', files.indexOf('f1') === -1, true);
+      });
+    }).then(() => {
+      this.assert('Tests Passed', true, true);
+    }).catch(err => this.showError(err));
+  },
+
+  autoTest2: function() {
+    var f1 = RNFS.DocumentDirectoryPath + '/f1';
+
+    return Promise.resolve().then(() => {
+      return RNFS.writeFile(f1, 'Zm9vIMKpIGJhciDwnYyGIGJheg==', 'base64').then(result => {
+        this.assert('Write F1', result[0], true);
+      });
+    }).then(() => {
+      return RNFS.readdir(RNFS.DocumentDirectoryPath).then(files => {
+        this.assert('F1 Visible', files.indexOf('f1') !== -1, true);
+      });
+    }).then(() => {
+      return RNFS.readFile(f1, 'base64').then(contents => {
+        this.assert('Read F1', contents, 'Zm9vIMKpIGJhciDwnYyGIGJheg==');
+      });
+    }).then(() => {
+      return RNFS.stat(f1).then(info => {
+        this.assert('Stat', info.size, 19);
+      });
+    }).then(() => {
+      return RNFS.unlink(f1).then(result => {
+        this.assert('Unlink', result[0], true);
+      });
+    }).then(result => {
+      return RNFS.readdir(RNFS.DocumentDirectoryPath).then(files => {
+        this.assert('F1 Gone', files.indexOf('f1') === -1, true);
+      });
+    }).then(() => {
+      this.assert('Tests Passed', true, true);
     }).catch(err => this.showError(err));
   },
 
@@ -108,30 +144,15 @@ var RNFSApp = React.createClass({
   render: function() {
     return (
       <View style={styles.container}>
+        <TouchableHighlight onPress={this.autoTest1}>
+          <View style={styles.button}>
+            <Text style={styles.text}>Test Read/Write/Delete 1</Text>
+          </View>
+        </TouchableHighlight>
 
-        <TouchableHighlight onPress={this.writeTest}>
+        <TouchableHighlight onPress={this.autoTest2}>
           <View style={styles.button}>
-            <Text style={styles.text}>Write Test</Text>
-          </View>
-        </TouchableHighlight>
-        <TouchableHighlight onPress={this.readTest}>
-          <View style={styles.button}>
-            <Text style={styles.text}>Read Test</Text>
-          </View>
-        </TouchableHighlight>
-        <TouchableHighlight onPress={this.readDirTest}>
-          <View style={styles.button}>
-            <Text style={styles.text}>Read Documents Dir Test</Text>
-          </View>
-        </TouchableHighlight>
-        <TouchableHighlight onPress={this.statTest}>
-          <View style={styles.button}>
-            <Text style={styles.text}>Stat Test</Text>
-          </View>
-        </TouchableHighlight>
-        <TouchableHighlight onPress={this.deleteTest}>
-          <View style={styles.button}>
-            <Text style={styles.text}>Delete Test</Text>
+            <Text style={styles.text}>Test Read/Write/Delete 2</Text>
           </View>
         </TouchableHighlight>
 
