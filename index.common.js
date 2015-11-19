@@ -24,7 +24,7 @@ var downloadUrl = 'http://facebook.github.io/react-native/img/opengraph.png';
 
 var RNFSApp = React.createClass({
   getInitialState: function() {
-    return { output: '' };
+    return { output: 'Doc folder: ' + RNFS.DocumentDirectoryPath };
   },
 
   mkdirTest: function() {

@@ -23,8 +23,9 @@
 		13B07FC11A68108700A75B9A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB71A68108700A75B9A /* main.m */; };
 		146834051AC3E58100842450 /* libReact.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 146834041AC3E56700842450 /* libReact.a */; };
 		832341BD1AAA6AB300B99B32 /* libRCTText.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 832341B51AAA6A8300B99B32 /* libRCTText.a */; };
-		8BF224A31BD530C600FF74F6 /* RNFSManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 8BF224A21BD530C600FF74F6 /* RNFSManager.m */; settings = {ASSET_TAGS = (); }; };
-		8BF224B01BD5310B00FF74F6 /* NSArray+Map.m in Sources */ = {isa = PBXBuildFile; fileRef = 8BF224AF1BD5310B00FF74F6 /* NSArray+Map.m */; settings = {ASSET_TAGS = (); }; };
+		8BC41C591BFD2C5B00C5335E /* NSArray+Map.m in Sources */ = {isa = PBXBuildFile; fileRef = 8BC41C561BFD2C5B00C5335E /* NSArray+Map.m */; };
+		8BC41C5A1BFD2C5B00C5335E /* RNFSManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 8BC41C581BFD2C5B00C5335E /* RNFSManager.m */; };
+		8BC41C5C1BFD3A1000C5335E /* Downloader.m in Sources */ = {isa = PBXBuildFile; fileRef = 8BC41C5B1BFD3A1000C5335E /* Downloader.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -129,10 +130,12 @@
 		146833FF1AC3E56700842450 /* React.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = React.xcodeproj; path = "../node_modules/react-native/React/React.xcodeproj"; sourceTree = "<group>"; };
 		78C398B01ACF4ADC00677621 /* RCTLinking.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RCTLinking.xcodeproj; path = "../node_modules/react-native/Libraries/LinkingIOS/RCTLinking.xcodeproj"; sourceTree = "<group>"; };
 		832341B01AAA6A8300B99B32 /* RCTText.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RCTText.xcodeproj; path = "../node_modules/react-native/Libraries/Text/RCTText.xcodeproj"; sourceTree = "<group>"; };
-		8BF224A11BD530C600FF74F6 /* RNFSManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RNFSManager.h; path = ReactNativeFSTest/RNFSManager.h; sourceTree = "<group>"; };
-		8BF224A21BD530C600FF74F6 /* RNFSManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = RNFSManager.m; path = ReactNativeFSTest/RNFSManager.m; sourceTree = "<group>"; };
-		8BF224AE1BD5310B00FF74F6 /* NSArray+Map.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "NSArray+Map.h"; path = "ReactNativeFSTest/NSArray+Map.h"; sourceTree = "<group>"; };
-		8BF224AF1BD5310B00FF74F6 /* NSArray+Map.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "NSArray+Map.m"; path = "ReactNativeFSTest/NSArray+Map.m"; sourceTree = "<group>"; };
+		8BC41C551BFD2C5B00C5335E /* NSArray+Map.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "NSArray+Map.h"; path = "../node_modules/react-native-fs/NSArray+Map.h"; sourceTree = "<group>"; };
+		8BC41C561BFD2C5B00C5335E /* NSArray+Map.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "NSArray+Map.m"; path = "../node_modules/react-native-fs/NSArray+Map.m"; sourceTree = "<group>"; };
+		8BC41C571BFD2C5B00C5335E /* RNFSManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RNFSManager.h; path = "../node_modules/react-native-fs/RNFSManager.h"; sourceTree = "<group>"; };
+		8BC41C581BFD2C5B00C5335E /* RNFSManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = RNFSManager.m; path = "../node_modules/react-native-fs/RNFSManager.m"; sourceTree = "<group>"; };
+		8BC41C5B1BFD3A1000C5335E /* Downloader.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = Downloader.m; path = "../node_modules/react-native-fs/Downloader.m"; sourceTree = "<group>"; };
+		8BC41C5D1BFD3A2000C5335E /* Downloader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Downloader.h; path = "../node_modules/react-native-fs/Downloader.h"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -246,10 +249,12 @@
 				13B07FB61A68108700A75B9A /* Info.plist */,
 				13B07FB11A68108700A75B9A /* LaunchScreen.xib */,
 				13B07FB71A68108700A75B9A /* main.m */,
-				8BF224A11BD530C600FF74F6 /* RNFSManager.h */,
-				8BF224A21BD530C600FF74F6 /* RNFSManager.m */,
-				8BF224AE1BD5310B00FF74F6 /* NSArray+Map.h */,
-				8BF224AF1BD5310B00FF74F6 /* NSArray+Map.m */,
+				8BC41C551BFD2C5B00C5335E /* NSArray+Map.h */,
+				8BC41C561BFD2C5B00C5335E /* NSArray+Map.m */,
+				8BC41C571BFD2C5B00C5335E /* RNFSManager.h */,
+				8BC41C581BFD2C5B00C5335E /* RNFSManager.m */,
+				8BC41C5D1BFD3A2000C5335E /* Downloader.h */,
+				8BC41C5B1BFD3A1000C5335E /* Downloader.m */,
 			);
 			name = ReactNativeFSTest;
 			sourceTree = "<group>";
@@ -536,8 +541,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				8BF224A31BD530C600FF74F6 /* RNFSManager.m in Sources */,
-				8BF224B01BD5310B00FF74F6 /* NSArray+Map.m in Sources */,
+				8BC41C5A1BFD2C5B00C5335E /* RNFSManager.m in Sources */,
+				8BC41C591BFD2C5B00C5335E /* NSArray+Map.m in Sources */,
+				8BC41C5C1BFD3A1000C5335E /* Downloader.m in Sources */,
 				13B07FBC1A68108700A75B9A /* AppDelegate.m in Sources */,
 				13B07FC11A68108700A75B9A /* main.m in Sources */,
 			);
