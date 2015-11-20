@@ -20,7 +20,8 @@ var testDir1Path = RNFS.DocumentDirectoryPath + '/test-dir-1';
 var testFile1Path = RNFS.DocumentDirectoryPath + '/test-dir-1/test-file-1';
 var testFile2Path = RNFS.DocumentDirectoryPath + '/test-dir-1/test-file-2';
 
-var downloadUrl = 'http://facebook.github.io/react-native/img/opengraph.png';
+var downloadUrl = 'http://epic.gsfc.nasa.gov/epic-archive/jpg/epic_1b_20151118094121_00.jpg';
+//var downloadUrl = 'http://cdimage.debian.org/debian-cd/8.2.0/amd64/iso-cd/debian-8.2.0-amd64-CD-1.iso';
 
 var RNFSApp = React.createClass({
   getInitialState: function() {
@@ -63,7 +64,12 @@ var RNFSApp = React.createClass({
   },
 
   downloadFileTest: function() {
-    return RNFS.downloadFile(downloadUrl, testFile2Path).then(success => {
+    var progress = data => {
+      var text = JSON.stringify(data);
+      this.setState({ output: text });
+    };
+
+    return RNFS.downloadFile(downloadUrl, testFile2Path, progress).then(success => {
       this.setState({ output: testFile2Path });
       this.setState({ imagePath: { uri: 'file://' + testFile2Path } });
     }).catch(err => this.showError(err));
