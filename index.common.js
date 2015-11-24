@@ -20,8 +20,12 @@ var testDir1Path = RNFS.DocumentDirectoryPath + '/test-dir-1';
 var testFile1Path = RNFS.DocumentDirectoryPath + '/test-dir-1/test-file-1';
 var testFile2Path = RNFS.DocumentDirectoryPath + '/test-dir-1/test-file-2';
 
-var downloadUrl = 'http://epic.gsfc.nasa.gov/epic-archive/jpg/epic_1b_20151118094121_00.jpg';
-//var downloadUrl = 'http://cdimage.debian.org/debian-cd/8.2.0/amd64/iso-cd/debian-8.2.0-amd64-CD-1.iso';
+var downloadUrl1 = 'http://epic.gsfc.nasa.gov/epic-archive/jpg/epic_1b_20151118094121_00.jpg';
+// var downloadUrl2 = 'http://epic.gsfc.nasa.gov/epic-archive/jpg/epic_1b_20151121003145_00.jpg';
+// var downloadUrl1 = 'http://cdimage.debian.org/debian-cd/8.2.0/amd64/iso-cd/debian-8.2.0-amd64-CD-1.iso';
+var downloadUrl2 = 'http://cdimage.debian.org/debian-cd/8.2.0/amd64/iso-cd/debian-8.2.0-amd64-CD-2.iso';
+
+var jobId1 = -1, jobId2 = -1;
 
 var RNFSApp = React.createClass({
   getInitialState: function() {
@@ -64,15 +68,36 @@ var RNFSApp = React.createClass({
   },
 
   downloadFileTest: function() {
-    var progress = data => {
+    var progress1 = data => {
       var text = JSON.stringify(data);
       this.setState({ output: text });
     };
 
-    return RNFS.downloadFile(downloadUrl, testFile2Path, progress).then(success => {
-      this.setState({ output: testFile2Path });
-      this.setState({ imagePath: { uri: 'file://' + testFile2Path } });
+    var progress2 = data => {
+      var text = JSON.stringify(data);
+      this.setState({ output2: text });
+    };
+
+    var begin1 = res => {
+      jobId1 = res.jobId;
+    };
+
+    var begin2 = res => {
+      jobId2 = res.jobId;
+    };
+
+    RNFS.downloadFile(downloadUrl1, testFile1Path, begin1, progress1).then(res => {
+      this.setState({ output: JSON.stringify(res) });
     }).catch(err => this.showError(err));
+
+    RNFS.downloadFile(downloadUrl2, testFile2Path, begin2, progress2).then(res => {
+      this.setState({ output2: JSON.stringify(res) });
+    }).catch(err => this.showError(err));
+  },
+
+  stopDownloadTest: function() {
+    RNFS.stopDownload(jobId1);
+    RNFS.stopDownload(jobId2);
   },
 
   assert: function(name, val, exp) {
@@ -206,8 +231,14 @@ var RNFSApp = React.createClass({
             <Text style={styles.text}>Download File</Text>
           </View>
         </TouchableHighlight>
+        <TouchableHighlight onPress={this.stopDownloadTest}>
+          <View style={styles.button}>
+            <Text style={styles.text}>Stop Download</Text>
+          </View>
+        </TouchableHighlight>
 
         <Text style={styles.text}>{this.state.output}</Text>
+        <Text style={styles.text}>{this.state.output2}</Text>
 
         <Image style={styles.image} source={this.state.imagePath}></Image>
       </View>
