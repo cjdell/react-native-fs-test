@@ -109,12 +109,20 @@ var RNFSApp = React.createClass({
     var f1 = RNFS.DocumentDirectoryPath + '/f1';
 
     return Promise.resolve().then(() => {
+      return RNFS.exists(f1).then(exists => {
+        this.assert('Should not exist', exists, false);
+      });
+    }).then(() => {
       return RNFS.writeFile(f1, 'foo © bar 𝌆 baz', 'utf8').then(result => {
         this.assert('Write F1', result[0], true);
       });
     }).then(() => {
       return RNFS.readdir(RNFS.DocumentDirectoryPath).then(files => {
         this.assert('F1 Visible', files.indexOf('f1') !== -1, true);
+      });
+    }).then(() => {
+      return RNFS.exists(f1).then(exists => {
+        this.assert('Should exist', exists, true);
       });
     }).then(() => {
       return RNFS.readFile(f1, 'utf8').then(contents => {
@@ -141,12 +149,20 @@ var RNFSApp = React.createClass({
     var f1 = RNFS.DocumentDirectoryPath + '/f1';
 
     return Promise.resolve().then(() => {
+      return RNFS.exists(f1).then(exists => {
+        this.assert('Should not exist', exists, false);
+      });
+    }).then(() => {
       return RNFS.writeFile(f1, 'Zm9vIMKpIGJhciDwnYyGIGJheg==', 'base64').then(result => {
         this.assert('Write F1', result[0], true);
       });
     }).then(() => {
       return RNFS.readdir(RNFS.DocumentDirectoryPath).then(files => {
         this.assert('F1 Visible', files.indexOf('f1') !== -1, true);
+      });
+    }).then(() => {
+      return RNFS.exists(f1).then(exists => {
+        this.assert('Should exist', exists, true);
       });
     }).then(() => {
       return RNFS.readFile(f1, 'base64').then(contents => {
@@ -174,7 +190,7 @@ var RNFSApp = React.createClass({
   },
   render: function() {
     return (
-      <View style={styles.container}>
+      <View style={styles.container} collapsable={false}>
         <TouchableHighlight onPress={this.autoTest1}>
           <View style={styles.button}>
             <Text style={styles.text}>Test Read/Write/Delete 1</Text>
