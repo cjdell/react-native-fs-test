@@ -20,10 +20,8 @@ var testDir1Path = RNFS.DocumentDirectoryPath + '/test-dir-1';
 var testFile1Path = RNFS.DocumentDirectoryPath + '/test-dir-1/test-file-1';
 var testFile2Path = RNFS.DocumentDirectoryPath + '/test-dir-1/test-file-2';
 
+var testImage1Path = RNFS.DocumentDirectoryPath + '/test-dir-1/test-image-1.jpg';
 var downloadUrl1 = 'http://epic.gsfc.nasa.gov/epic-archive/jpg/epic_1b_20151118094121_00.jpg';
-// var downloadUrl2 = 'http://epic.gsfc.nasa.gov/epic-archive/jpg/epic_1b_20151121003145_00.jpg';
-// var downloadUrl1 = 'http://cdimage.debian.org/debian-cd/8.2.0/amd64/iso-cd/debian-8.2.0-amd64-CD-1.iso';
-var downloadUrl2 = 'http://cdimage.debian.org/debian-cd/8.2.0/amd64/iso-cd/debian-8.2.0-amd64-CD-2.iso';
 
 var jobId1 = -1, jobId2 = -1;
 
@@ -86,12 +84,9 @@ var RNFSApp = React.createClass({
       jobId2 = res.jobId;
     };
 
-    RNFS.downloadFile(downloadUrl1, testFile1Path, begin1, progress1).then(res => {
+    RNFS.downloadFile(downloadUrl1, testImage1Path, begin1, progress1).then(res => {
       this.setState({ output: JSON.stringify(res) });
-    }).catch(err => this.showError(err));
-
-    RNFS.downloadFile(downloadUrl2, testFile2Path, begin2, progress2).then(res => {
-      this.setState({ output2: JSON.stringify(res) });
+      this.setState({ imagePath: { uri: 'file://' + testImage1Path } });
     }).catch(err => this.showError(err));
   },
 
