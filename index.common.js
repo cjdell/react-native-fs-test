@@ -100,6 +100,12 @@ var RNFSApp = React.createClass({
     this.setState({ output: name });
   },
 
+  getFSInfoTest: function() {
+    return RNFS.getFSInfo().then(info => {
+      this.setState({ output: JSON.stringify(info) });
+    });
+  },
+
   autoTest1: function() {
     var f1 = RNFS.DocumentDirectoryPath + '/f1';
 
@@ -245,6 +251,16 @@ var RNFSApp = React.createClass({
         <TouchableHighlight onPress={this.stopDownloadTest}>
           <View style={styles.button}>
             <Text style={styles.text}>Stop Download</Text>
+          </View>
+        </TouchableHighlight>
+
+        <View style={styles.button}>
+          <Text style={styles.text}>---</Text>
+        </View>
+
+        <TouchableHighlight onPress={this.getFSInfoTest}>
+          <View style={styles.button}>
+            <Text style={styles.text}>Get FS Info</Text>
           </View>
         </TouchableHighlight>
 
