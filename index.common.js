@@ -20,8 +20,9 @@ var testDir1Path = RNFS.DocumentDirectoryPath + '/test-dir-1';
 var testFile1Path = RNFS.DocumentDirectoryPath + '/test-dir-1/test-file-1';
 var testFile2Path = RNFS.DocumentDirectoryPath + '/test-dir-1/test-file-2';
 
-var testImage1Path = RNFS.DocumentDirectoryPath + '/test-dir-1/test-image-1.jpg';
+var testImage1Path = RNFS.DocumentDirectoryPath + '/test-image-1.jpg';
 var downloadUrl1 = 'http://epic.gsfc.nasa.gov/epic-archive/jpg/epic_1b_20151118094121_00.jpg';
+var uploadUrl1 = 'http://buz.co/upload-tester.php';
 
 var jobId1 = -1, jobId2 = -1;
 
@@ -93,6 +94,28 @@ var RNFSApp = React.createClass({
   stopDownloadTest: function() {
     RNFS.stopDownload(jobId1);
     RNFS.stopDownload(jobId2);
+  },
+
+  uploadFileTest: function() {
+    var progress1 = data => {
+      var text = JSON.stringify(data);
+      this.setState({ output: text });
+    };
+
+    var begin1 = res => {
+      jobId1 = res.jobId;
+    };
+
+    var options = {
+      toUrl: uploadUrl1,
+      files: [{ name: 'myfile', filename: 'thing.jpg', filepath: testImage1Path, filetype: 'image/jpeg' }],
+      beginCallback: begin1,
+      progressCallback: progress1
+    };
+
+    RNFS.uploadFiles(options).then(res => {
+      this.setState({ output: JSON.stringify(res) });
+    }).catch(err => this.showError(err))
   },
 
   assert: function(name, val, exp) {
@@ -192,82 +215,92 @@ var RNFSApp = React.createClass({
   render: function() {
     return (
       <View style={styles.container} collapsable={false}>
-        <TouchableHighlight onPress={this.autoTest1}>
-          <View style={styles.button}>
-            <Text style={styles.text}>Test Read/Write/Delete 1</Text>
-          </View>
-        </TouchableHighlight>
+        <View style={styles.panes}>
+          <View style={styles.leftPane}>
+            <TouchableHighlight onPress={this.autoTest1}>
+              <View style={styles.button}>
+                <Text style={styles.text}>Auto Test 1</Text>
+              </View>
+            </TouchableHighlight>
 
-        <TouchableHighlight onPress={this.autoTest2}>
-          <View style={styles.button}>
-            <Text style={styles.text}>Test Read/Write/Delete 2</Text>
-          </View>
-        </TouchableHighlight>
+            <TouchableHighlight onPress={this.autoTest2}>
+              <View style={styles.button}>
+                <Text style={styles.text}>Auto Test 2</Text>
+              </View>
+            </TouchableHighlight>
 
-        <View style={styles.button}>
-          <Text style={styles.text}>---</Text>
+            <View style={styles.button}>
+              <Text style={styles.text}>---</Text>
+            </View>
+
+            <TouchableHighlight onPress={this.mkdirTest}>
+              <View style={styles.button}>
+                <Text style={styles.text}>Make Dir</Text>
+              </View>
+            </TouchableHighlight>
+            <TouchableHighlight onPress={this.writeNestedTest}>
+              <View style={styles.button}>
+                <Text style={styles.text}>Write Nested</Text>
+              </View>
+            </TouchableHighlight>
+            <TouchableHighlight onPress={this.readNestedTest}>
+              <View style={styles.button}>
+                <Text style={styles.text}>Read Nested</Text>
+              </View>
+            </TouchableHighlight>
+            <TouchableHighlight onPress={this.readDirNestedTest}>
+              <View style={styles.button}>
+                <Text style={styles.text}>Read Dir</Text>
+              </View>
+            </TouchableHighlight>
+            <TouchableHighlight onPress={this.deleteNestedTest}>
+              <View style={styles.button}>
+                <Text style={styles.text}>Delete Nested</Text>
+              </View>
+            </TouchableHighlight>
+            <TouchableHighlight onPress={this.deleteDirTest}>
+              <View style={styles.button}>
+                <Text style={styles.text}>Delete Dir</Text>
+              </View>
+            </TouchableHighlight>
+
+          </View>
+
+          <View style={styles.rightPane}>
+
+            <TouchableHighlight onPress={this.downloadFileTest}>
+              <View style={styles.button}>
+                <Text style={styles.text}>Download File</Text>
+              </View>
+            </TouchableHighlight>
+            <TouchableHighlight onPress={this.stopDownloadTest}>
+              <View style={styles.button}>
+                <Text style={styles.text}>Stop Download</Text>
+              </View>
+            </TouchableHighlight>
+            <TouchableHighlight onPress={this.uploadFileTest}>
+              <View style={styles.button}>
+                <Text style={styles.text}>Upload File</Text>
+              </View>
+            </TouchableHighlight>
+
+            <View style={styles.button}>
+              <Text style={styles.text}>---</Text>
+            </View>
+
+            <TouchableHighlight onPress={this.getFSInfoTest}>
+              <View style={styles.button}>
+                <Text style={styles.text}>Get FS Info</Text>
+              </View>
+            </TouchableHighlight>
+          </View>
         </View>
+        <View>
+          <Text style={styles.text}>{this.state.output}</Text>
+          <Text style={styles.text}>{this.state.output2}</Text>
 
-        <TouchableHighlight onPress={this.mkdirTest}>
-          <View style={styles.button}>
-            <Text style={styles.text}>Make Dir</Text>
-          </View>
-        </TouchableHighlight>
-        <TouchableHighlight onPress={this.writeNestedTest}>
-          <View style={styles.button}>
-            <Text style={styles.text}>Write Nested</Text>
-          </View>
-        </TouchableHighlight>
-        <TouchableHighlight onPress={this.readNestedTest}>
-          <View style={styles.button}>
-            <Text style={styles.text}>Read Nested</Text>
-          </View>
-        </TouchableHighlight>
-        <TouchableHighlight onPress={this.readDirNestedTest}>
-          <View style={styles.button}>
-            <Text style={styles.text}>Read Dir</Text>
-          </View>
-        </TouchableHighlight>
-        <TouchableHighlight onPress={this.deleteNestedTest}>
-          <View style={styles.button}>
-            <Text style={styles.text}>Delete Nested</Text>
-          </View>
-        </TouchableHighlight>
-        <TouchableHighlight onPress={this.deleteDirTest}>
-          <View style={styles.button}>
-            <Text style={styles.text}>Delete Dir</Text>
-          </View>
-        </TouchableHighlight>
-
-        <View style={styles.button}>
-          <Text style={styles.text}>---</Text>
+          <Image style={styles.image} source={this.state.imagePath}></Image>
         </View>
-
-        <TouchableHighlight onPress={this.downloadFileTest}>
-          <View style={styles.button}>
-            <Text style={styles.text}>Download File</Text>
-          </View>
-        </TouchableHighlight>
-        <TouchableHighlight onPress={this.stopDownloadTest}>
-          <View style={styles.button}>
-            <Text style={styles.text}>Stop Download</Text>
-          </View>
-        </TouchableHighlight>
-
-        <View style={styles.button}>
-          <Text style={styles.text}>---</Text>
-        </View>
-
-        <TouchableHighlight onPress={this.getFSInfoTest}>
-          <View style={styles.button}>
-            <Text style={styles.text}>Get FS Info</Text>
-          </View>
-        </TouchableHighlight>
-
-        <Text style={styles.text}>{this.state.output}</Text>
-        <Text style={styles.text}>{this.state.output2}</Text>
-
-        <Image style={styles.image} source={this.state.imagePath}></Image>
       </View>
     );
   }
@@ -277,6 +310,15 @@ var styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#F5FCFF',
+  },
+  panes: {
+    flexDirection: 'row',
+  },
+  leftPane: {
+    flex: 1,
+  },
+  rightPane: {
+    flex: 1,
   },
   button: {
     height: 32,
