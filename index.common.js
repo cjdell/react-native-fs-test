@@ -4,7 +4,8 @@
  */
 'use strict';
 
-var React = require('react-native');
+var React = require('react');
+var ReactNative = require('react-native');
 var {
   AppRegistry,
   StyleSheet,
@@ -12,7 +13,7 @@ var {
   View,
   TouchableHighlight,
   Image,
-} = React;
+} = ReactNative;
 
 var RNFS = require('react-native-fs');
 
