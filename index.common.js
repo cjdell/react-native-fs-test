@@ -67,7 +67,7 @@ var RNFSApp = React.createClass({
     }).catch(err => this.showError(err));
   },
 
-  downloadFileTest: function() {
+  downloadFileTest: function(background) {
     var progress1 = data => {
       var text = JSON.stringify(data);
       this.setState({ output: text });
@@ -86,7 +86,7 @@ var RNFSApp = React.createClass({
       jobId2 = res.jobId;
     };
 
-    RNFS.downloadFile(downloadUrl1, testImage1Path, begin1, progress1).then(res => {
+    RNFS.downloadFile({ fromUrl: downloadUrl1, toFile: testImage1Path, begin: begin1, progress: progress1, background }).then(res => {
       this.setState({ output: JSON.stringify(res) });
       this.setState({ imagePath: { uri: 'file://' + testImage1Path } });
     }).catch(err => this.showError(err));
@@ -269,9 +269,14 @@ var RNFSApp = React.createClass({
 
           <View style={styles.rightPane}>
 
-            <TouchableHighlight onPress={this.downloadFileTest}>
+            <TouchableHighlight onPress={this.downloadFileTest.bind(this, false)}>
               <View style={styles.button}>
-                <Text style={styles.text}>Download File</Text>
+                <Text style={styles.text}>DL File</Text>
+              </View>
+            </TouchableHighlight>
+            <TouchableHighlight onPress={this.downloadFileTest.bind(this, true)}>
+              <View style={styles.button}>
+                <Text style={styles.text}>DL File (BG)</Text>
               </View>
             </TouchableHighlight>
             <TouchableHighlight onPress={this.stopDownloadTest}>
