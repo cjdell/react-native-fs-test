@@ -25,6 +25,9 @@ var testImage1Path = RNFS.DocumentDirectoryPath + '/test-image-1.jpg';
 var downloadUrl1 = 'http://epic.gsfc.nasa.gov/epic-archive/jpg/epic_1b_20151118094121_00.jpg';
 var uploadUrl1 = 'http://buz.co/upload-tester.php';
 
+var downloadHeaderUrl = 'http://buz.co/download-tester.php';
+var downloadHeaderPath = RNFS.DocumentDirectoryPath + '/headers.json';
+
 var jobId1 = -1, jobId2 = -1;
 
 var RNFSApp = React.createClass({
@@ -117,6 +120,25 @@ var RNFSApp = React.createClass({
     RNFS.uploadFiles(options).then(res => {
       this.setState({ output: JSON.stringify(res) });
     }).catch(err => this.showError(err))
+  },
+
+  downloadHeaderTest: function() {
+    var headers = {
+      'foo': 'Hello',
+      'bar': 'World'
+    };
+
+    // Download the file then read it, it should contain the headers we sent
+    RNFS.downloadFile({ fromUrl: downloadHeaderUrl, toFile: downloadHeaderPath, headers }).then(res => {
+      return RNFS.readFile(downloadHeaderPath, 'utf8');
+    }).then(content => {
+      var headers = JSON.parse(content);
+
+      this.assert('Should contain header for foo', headers['HTTP_FOO'], 'Hello');
+      this.assert('Should contain header for bar', headers['HTTP_BAR'], 'World');
+
+      this.setState({ output: content });
+    }).catch(err => this.showError(err));
   },
 
   assert: function(name, val, exp) {
@@ -287,6 +309,11 @@ var RNFSApp = React.createClass({
             <TouchableHighlight onPress={this.uploadFileTest}>
               <View style={styles.button}>
                 <Text style={styles.text}>Upload File</Text>
+              </View>
+            </TouchableHighlight>
+            <TouchableHighlight onPress={this.downloadHeaderTest}>
+              <View style={styles.button}>
+                <Text style={styles.text}>DL Headers</Text>
               </View>
             </TouchableHighlight>
 
