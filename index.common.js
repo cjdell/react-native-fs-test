@@ -22,55 +22,56 @@ var testFile1Path = RNFS.DocumentDirectoryPath + '/test-dir-1/test-file-1';
 var testFile2Path = RNFS.DocumentDirectoryPath + '/test-dir-1/test-file-2';
 
 var testImage1Path = RNFS.DocumentDirectoryPath + '/test-image-1.jpg';
-var downloadUrl1 = 'http://epic.gsfc.nasa.gov/epic-archive/jpg/epic_1b_20151118094121_00.jpg';
-var uploadUrl1 = 'http://buz.co/upload-tester.php';
+var downloadUrl = 'http://epic.gsfc.nasa.gov/epic-archive/jpg/epic_1b_20151118094121_00.jpg';
+var downloadRedirectUrl = 'http://buz.co/rnfs/download-redirect.php';
+var uploadUrl1 = 'http://buz.co/rnfs/upload-tester.php';
 
-var downloadHeaderUrl = 'http://buz.co/download-tester.php';
+var downloadHeaderUrl = 'http://buz.co/rnfs/download-tester.php';
 var downloadHeaderPath = RNFS.DocumentDirectoryPath + '/headers.json';
 
 var jobId1 = -1, jobId2 = -1;
 
 var RNFSApp = React.createClass({
-  getInitialState: function() {
+  getInitialState: function () {
     return { output: 'Doc folder: ' + RNFS.DocumentDirectoryPath };
   },
 
-  mkdirTest: function() {
+  mkdirTest: function () {
     return RNFS.mkdir(testDir1Path).then(success => {
       var text = success.toString();
       this.setState({ output: text });
     }).catch(err => this.showError(err));
   },
-  writeNestedTest: function() {
+  writeNestedTest: function () {
     return RNFS.writeFile(testFile1Path, 'I am a file in the directory', 'ascii').then(() => {
       this.setState({ output: 'Files written successfully' });
     }).catch(err => this.showError(err));
   },
-  readNestedTest: function() {
+  readNestedTest: function () {
     return RNFS.readFile(testFile1Path).then((data) => {
       this.setState({ output: 'Contents: ' + data });
     }).catch(err => this.showError(err));
   },
-  readDirNestedTest: function() {
+  readDirNestedTest: function () {
     return RNFS.readDir(testDir1Path).then(files => {
       var text = files.map(file => file.name + ' (' + file.size + ') (' + (file.isDirectory() ? 'd' : 'f') + ')').join('\n');
       this.setState({ output: text });
     }).catch(err => this.showError(err));
   },
-  deleteNestedTest: function() {
+  deleteNestedTest: function () {
     return RNFS.unlink(testFile1Path).then(success => {
       var text = success.toString();
       this.setState({ output: text });
     }).catch(err => this.showError(err));
   },
-  deleteDirTest: function() {
+  deleteDirTest: function () {
     return RNFS.unlink(testDir1Path).then(success => {
       var text = success.toString();
       this.setState({ output: text });
     }).catch(err => this.showError(err));
   },
 
-  downloadFileTest: function(background) {
+  downloadFileTest: function (background, redirect) {
     var progress1 = data => {
       var text = JSON.stringify(data);
       this.setState({ output: text });
@@ -89,18 +90,20 @@ var RNFSApp = React.createClass({
       jobId2 = res.jobId;
     };
 
-    RNFS.downloadFile({ fromUrl: downloadUrl1, toFile: testImage1Path, begin: begin1, progress: progress1, background }).then(res => {
+    var url = redirect ? downloadRedirectUrl : downloadUrl;
+
+    RNFS.downloadFile({ fromUrl: url, toFile: testImage1Path, begin: begin1, progress: progress1, background }).then(res => {
       this.setState({ output: JSON.stringify(res) });
       this.setState({ imagePath: { uri: 'file://' + testImage1Path } });
     }).catch(err => this.showError(err));
   },
 
-  stopDownloadTest: function() {
+  stopDownloadTest: function () {
     RNFS.stopDownload(jobId1);
     RNFS.stopDownload(jobId2);
   },
 
-  uploadFileTest: function() {
+  uploadFileTest: function () {
     var progress1 = data => {
       var text = JSON.stringify(data);
       this.setState({ output: text });
@@ -122,7 +125,7 @@ var RNFSApp = React.createClass({
     }).catch(err => this.showError(err))
   },
 
-  downloadHeaderTest: function() {
+  downloadHeaderTest: function () {
     var headers = {
       'foo': 'Hello',
       'bar': 'World'
@@ -141,18 +144,18 @@ var RNFSApp = React.createClass({
     }).catch(err => this.showError(err));
   },
 
-  assert: function(name, val, exp) {
+  assert: function (name, val, exp) {
     if (exp !== val) throw new Error(name + ': "' + val + '" should be "' + exp + '"');
     this.setState({ output: name });
   },
 
-  getFSInfoTest: function() {
+  getFSInfoTest: function () {
     return RNFS.getFSInfo().then(info => {
       this.setState({ output: JSON.stringify(info) });
     });
   },
 
-  autoTest1: function() {
+  autoTest1: function () {
     var f1 = RNFS.DocumentDirectoryPath + '/f1';
 
     return Promise.resolve().then(() => {
@@ -192,7 +195,7 @@ var RNFSApp = React.createClass({
     }).catch(err => this.showError(err));
   },
 
-  autoTest2: function() {
+  autoTest2: function () {
     var f1 = RNFS.DocumentDirectoryPath + '/f1';
 
     return Promise.resolve().then(() => {
@@ -232,10 +235,10 @@ var RNFSApp = React.createClass({
     }).catch(err => this.showError(err));
   },
 
-  showError: function(err) {
+  showError: function (err) {
     this.setState({ output: err.message });
   },
-  render: function() {
+  render: function () {
     return (
       <View style={styles.container} collapsable={false}>
         <View style={styles.panes}>
@@ -291,14 +294,19 @@ var RNFSApp = React.createClass({
 
           <View style={styles.rightPane}>
 
-            <TouchableHighlight onPress={this.downloadFileTest.bind(this, false)}>
+            <TouchableHighlight onPress={this.downloadFileTest.bind(this, false, false) }>
               <View style={styles.button}>
                 <Text style={styles.text}>DL File</Text>
               </View>
             </TouchableHighlight>
-            <TouchableHighlight onPress={this.downloadFileTest.bind(this, true)}>
+            <TouchableHighlight onPress={this.downloadFileTest.bind(this, true, false) }>
               <View style={styles.button}>
-                <Text style={styles.text}>DL File (BG)</Text>
+                <Text style={styles.text}>DL File (BG) </Text>
+              </View>
+            </TouchableHighlight>
+            <TouchableHighlight onPress={this.downloadFileTest.bind(this, false, true) }>
+              <View style={styles.button}>
+                <Text style={styles.text}>DL File (302)</Text>
               </View>
             </TouchableHighlight>
             <TouchableHighlight onPress={this.stopDownloadTest}>
