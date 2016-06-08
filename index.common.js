@@ -23,6 +23,7 @@ var testFile2Path = RNFS.DocumentDirectoryPath + '/test-dir-1/test-file-2';
 
 var testImage1Path = RNFS.DocumentDirectoryPath + '/test-image-1.jpg';
 var downloadUrl = 'http://epic.gsfc.nasa.gov/epic-archive/jpg/epic_1b_20151118094121_00.jpg';
+var downloadLargeUrl = 'http://ipv4.download.thinkbroadband.com/100MB.zip';
 var downloadRedirectUrl = 'http://buz.co/rnfs/download-redirect.php';
 var uploadUrl1 = 'http://buz.co/rnfs/upload-tester.php';
 
@@ -71,28 +72,19 @@ var RNFSApp = React.createClass({
     }).catch(err => this.showError(err));
   },
 
-  downloadFileTest: function (background, redirect) {
-    var progress1 = data => {
+  downloadFileTest: function (background, url) {
+    var progress = data => {
       var text = JSON.stringify(data);
       this.setState({ output: text });
     };
 
-    var progress2 = data => {
-      var text = JSON.stringify(data);
-      this.setState({ output2: text });
-    };
-
-    var begin1 = res => {
+    var begin = res => {
       jobId1 = res.jobId;
     };
 
-    var begin2 = res => {
-      jobId2 = res.jobId;
-    };
+    var progressDivider = 2;
 
-    var url = redirect ? downloadRedirectUrl : downloadUrl;
-
-    RNFS.downloadFile({ fromUrl: url, toFile: testImage1Path, begin: begin1, progress: progress1, background }).then(res => {
+    RNFS.downloadFile({ fromUrl: url, toFile: testImage1Path, begin, progress, background, progressDivider }).then(res => {
       this.setState({ output: JSON.stringify(res) });
       this.setState({ imagePath: { uri: 'file://' + testImage1Path } });
     }).catch(err => this.showError(err));
@@ -294,19 +286,24 @@ var RNFSApp = React.createClass({
 
           <View style={styles.rightPane}>
 
-            <TouchableHighlight onPress={this.downloadFileTest.bind(this, false, false) }>
+            <TouchableHighlight onPress={this.downloadFileTest.bind(this, false, downloadUrl) }>
               <View style={styles.button}>
                 <Text style={styles.text}>DL File</Text>
               </View>
             </TouchableHighlight>
-            <TouchableHighlight onPress={this.downloadFileTest.bind(this, true, false) }>
+            <TouchableHighlight onPress={this.downloadFileTest.bind(this, true, downloadUrl) }>
               <View style={styles.button}>
                 <Text style={styles.text}>DL File (BG) </Text>
               </View>
             </TouchableHighlight>
-            <TouchableHighlight onPress={this.downloadFileTest.bind(this, false, true) }>
+            <TouchableHighlight onPress={this.downloadFileTest.bind(this, false, downloadRedirectUrl) }>
               <View style={styles.button}>
                 <Text style={styles.text}>DL File (302)</Text>
+              </View>
+            </TouchableHighlight>
+            <TouchableHighlight onPress={this.downloadFileTest.bind(this, false, downloadLargeUrl) }>
+              <View style={styles.button}>
+                <Text style={styles.text}>DL File (Big)</Text>
               </View>
             </TouchableHighlight>
             <TouchableHighlight onPress={this.stopDownloadTest}>
