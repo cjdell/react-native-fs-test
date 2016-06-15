@@ -113,6 +113,12 @@ var RNFSApp = React.createClass({
     };
 
     RNFS.uploadFiles(options).then(res => {
+      var response = JSON.parse(res.response);
+
+      this.assert('Upload should have name', response.myfile.name, 'thing.jpg');
+      this.assert('Upload should have type', response.myfile.type, 'image/jpeg');
+      this.assert('Upload should have size', response.myfile.size, 312428);
+
       this.setState({ output: JSON.stringify(res) });
     }).catch(err => this.showError(err))
   },
