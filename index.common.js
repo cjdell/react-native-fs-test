@@ -1,6 +1,7 @@
 /**
  * Sample React Native App
  * https://github.com/facebook/react-native
+ * @flow
  */
 'use strict';
 
@@ -34,7 +35,12 @@ var jobId1 = -1, jobId2 = -1;
 
 var RNFSApp = React.createClass({
   getInitialState: function () {
-    return { output: 'Doc folder: ' + RNFS.DocumentDirectoryPath };
+    return {
+      output: 'Doc folder: ' + RNFS.DocumentDirectoryPath,
+      imagePath: {
+        uri: ''
+      }
+    };
   },
 
   mkdirTest: function () {
@@ -74,7 +80,8 @@ var RNFSApp = React.createClass({
 
   downloadFileTest: function (background, url) {
     var progress = data => {
-      var text = JSON.stringify(data);
+      var percentage = data.bytesWritten / data.contentLength;
+      var text = `Progress ${percentage}%`;
       this.setState({ output: text });
     };
 
@@ -143,7 +150,7 @@ var RNFSApp = React.createClass({
   },
 
   assert: function (name, val, exp) {
-    if (exp !== val) throw new Error(name + ': "' + val + '" should be "' + exp + '"');
+    if (exp !== val) throw new Error(name + ': "' + String(val) + '" should be "' + String(exp) + '"');
     this.setState({ output: name });
   },
 
@@ -153,16 +160,20 @@ var RNFSApp = React.createClass({
     });
   },
 
-  autoTest1: function () {
+  autoTest: function () {
     var f1 = RNFS.DocumentDirectoryPath + '/f1';
 
     return Promise.resolve().then(() => {
+      return RNFS.unlink(f1).then(result => {
+        this.assert('Unlink', result[0], true);
+      }, () => void 0 /* Ignore error */);
+    }).then(() => {
       return RNFS.exists(f1).then(exists => {
         this.assert('Should not exist', exists, false);
       });
     }).then(() => {
       return RNFS.writeFile(f1, 'foo © bar 𝌆 baz', 'utf8').then(result => {
-        this.assert('Write F1', result[0], true);
+        this.assert('Write F1 (unicode)', result[0], true);
       });
     }).then(() => {
       return RNFS.readdir(RNFS.DocumentDirectoryPath).then(files => {
@@ -181,6 +192,18 @@ var RNFSApp = React.createClass({
         this.assert('Stat', info.size, 19);
       });
     }).then(() => {
+      return RNFS.writeFile(f1, '4piV4piC4piF', 'base64').then(result => {
+        this.assert('Write F1 (base64)', result[0], true);
+      });
+    }).then(() => {
+      return RNFS.readFile(f1, 'base64').then(contents => {
+        this.assert('Read F1', contents, '4piV4piC4piF');
+      });
+    }).then(() => {
+      return RNFS.stat(f1).then(info => {
+        this.assert('Stat', info.size, 9);
+      });
+    }).then(() => {
       return RNFS.unlink(f1).then(result => {
         this.assert('Unlink', result[0], true);
       });
@@ -193,40 +216,37 @@ var RNFSApp = React.createClass({
     }).catch(err => this.showError(err));
   },
 
-  autoTest2: function () {
+  appendTest: function () {
     var f1 = RNFS.DocumentDirectoryPath + '/f1';
+    var f2 = RNFS.DocumentDirectoryPath + '/f2';
 
     return Promise.resolve().then(() => {
-      return RNFS.exists(f1).then(exists => {
-        this.assert('Should not exist', exists, false);
-      });
+      return RNFS.unlink(f1).then(result => {
+        this.assert('Unlink', result[0], true);
+      }, () => void 0 /* Ignore error */);
     }).then(() => {
-      return RNFS.writeFile(f1, 'Zm9vIMKpIGJhciDwnYyGIGJheg==', 'base64').then(result => {
+      return RNFS.unlink(f2).then(result => {
+        this.assert('Unlink', result[0], true);
+      }, () => void 0 /* Ignore error */);
+    }).then(() => {
+      return RNFS.writeFile(f1, 'foo © bar 𝌆 baz', 'utf8').then(result => {
         this.assert('Write F1', result[0], true);
       });
     }).then(() => {
-      return RNFS.readdir(RNFS.DocumentDirectoryPath).then(files => {
-        this.assert('F1 Visible', files.indexOf('f1') !== -1, true);
+      return RNFS.appendFile(f1, 'baz 𝌆 bar © foo', 'utf8').then(result => {
+        this.assert('Append F1 (existing)', result[0], true);
       });
     }).then(() => {
-      return RNFS.exists(f1).then(exists => {
-        this.assert('Should exist', exists, true);
+      return RNFS.appendFile(f2, 'baz 𝌆 bar © foo', 'utf8').then(result => {
+        this.assert('Append F2 (new)', result[0], true);
       });
     }).then(() => {
-      return RNFS.readFile(f1, 'base64').then(contents => {
-        this.assert('Read F1', contents, 'Zm9vIMKpIGJhciDwnYyGIGJheg==');
+      return RNFS.readFile(f1, 'utf8').then(contents => {
+        this.assert('Read F1', contents, 'foo © bar 𝌆 bazbaz 𝌆 bar © foo');
       });
     }).then(() => {
-      return RNFS.stat(f1).then(info => {
-        this.assert('Stat', info.size, 19);
-      });
-    }).then(() => {
-      return RNFS.unlink(f1).then(result => {
-        this.assert('Unlink', result[0], true);
-      });
-    }).then(result => {
-      return RNFS.readdir(RNFS.DocumentDirectoryPath).then(files => {
-        this.assert('F1 Gone', files.indexOf('f1') === -1, true);
+      return RNFS.readFile(f2, 'utf8').then(contents => {
+        this.assert('Read F2', contents, 'baz 𝌆 bar © foo');
       });
     }).then(() => {
       this.assert('Tests Passed', true, true);
@@ -241,15 +261,14 @@ var RNFSApp = React.createClass({
       <View style={styles.container} collapsable={false}>
         <View style={styles.panes}>
           <View style={styles.leftPane}>
-            <TouchableHighlight onPress={this.autoTest1}>
+            <TouchableHighlight onPress={this.autoTest}>
               <View style={styles.button}>
-                <Text style={styles.text}>Auto Test 1</Text>
+                <Text style={styles.text}>Auto Test</Text>
               </View>
             </TouchableHighlight>
-
-            <TouchableHighlight onPress={this.autoTest2}>
+            <TouchableHighlight onPress={this.appendTest}>
               <View style={styles.button}>
-                <Text style={styles.text}>Auto Test 2</Text>
+                <Text style={styles.text}>Append Test</Text>
               </View>
             </TouchableHighlight>
 
@@ -304,12 +323,12 @@ var RNFSApp = React.createClass({
             </TouchableHighlight>
             <TouchableHighlight onPress={this.downloadFileTest.bind(this, false, downloadRedirectUrl) }>
               <View style={styles.button}>
-                <Text style={styles.text}>DL File (302)</Text>
+                <Text style={styles.text}>DL File (302) </Text>
               </View>
             </TouchableHighlight>
             <TouchableHighlight onPress={this.downloadFileTest.bind(this, false, downloadLargeUrl) }>
               <View style={styles.button}>
-                <Text style={styles.text}>DL File (Big)</Text>
+                <Text style={styles.text}>DL File (Big) </Text>
               </View>
             </TouchableHighlight>
             <TouchableHighlight onPress={this.stopDownloadTest}>
@@ -341,7 +360,6 @@ var RNFSApp = React.createClass({
         </View>
         <View>
           <Text style={styles.text}>{this.state.output}</Text>
-          <Text style={styles.text}>{this.state.output2}</Text>
 
           <Image style={styles.image} source={this.state.imagePath}></Image>
         </View>
