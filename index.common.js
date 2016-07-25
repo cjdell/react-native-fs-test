@@ -44,9 +44,8 @@ var RNFSApp = React.createClass({
   },
 
   mkdirTest: function () {
-    return RNFS.mkdir(testDir1Path).then(success => {
-      var text = success.toString();
-      this.setState({ output: text });
+    return RNFS.mkdir(testDir1Path).then(() => {
+      this.setState({ output: 'Directory created' });
     }).catch(err => this.showError(err));
   },
   writeNestedTest: function () {
@@ -66,15 +65,13 @@ var RNFSApp = React.createClass({
     }).catch(err => this.showError(err));
   },
   deleteNestedTest: function () {
-    return RNFS.unlink(testFile1Path).then(success => {
-      var text = success.toString();
-      this.setState({ output: text });
+    return RNFS.unlink(testFile1Path).then(() => {
+      this.setState({ output: 'Deleted' });
     }).catch(err => this.showError(err));
   },
   deleteDirTest: function () {
-    return RNFS.unlink(testDir1Path).then(success => {
-      var text = success.toString();
-      this.setState({ output: text });
+    return RNFS.unlink(testDir1Path).then(() => {
+      this.setState({ output: 'Deleted' });
     }).catch(err => this.showError(err));
   },
 
@@ -120,7 +117,7 @@ var RNFSApp = React.createClass({
     };
 
     RNFS.uploadFiles(options).then(res => {
-      var response = JSON.parse(res.response);
+      var response = JSON.parse(res.body);
 
       this.assert('Upload should have name', response.myfile.name, 'thing.jpg');
       this.assert('Upload should have type', response.myfile.type, 'image/jpeg');
@@ -164,17 +161,13 @@ var RNFSApp = React.createClass({
     var f1 = RNFS.DocumentDirectoryPath + '/f1';
 
     return Promise.resolve().then(() => {
-      return RNFS.unlink(f1).then(result => {
-        this.assert('Unlink', result[0], true);
-      }, () => void 0 /* Ignore error */);
+      return RNFS.unlink(f1).then(() => { }, () => void 0 /* Ignore error */);
     }).then(() => {
       return RNFS.exists(f1).then(exists => {
         this.assert('Should not exist', exists, false);
       });
     }).then(() => {
-      return RNFS.writeFile(f1, 'foo © bar 𝌆 baz', 'utf8').then(result => {
-        this.assert('Write F1 (unicode)', result[0], true);
-      });
+      return RNFS.writeFile(f1, 'foo © bar 𝌆 baz', 'utf8');
     }).then(() => {
       return RNFS.readdir(RNFS.DocumentDirectoryPath).then(files => {
         this.assert('F1 Visible', files.indexOf('f1') !== -1, true);
@@ -192,9 +185,7 @@ var RNFSApp = React.createClass({
         this.assert('Stat', info.size, 19);
       });
     }).then(() => {
-      return RNFS.writeFile(f1, '4piV4piC4piF', 'base64').then(result => {
-        this.assert('Write F1 (base64)', result[0], true);
-      });
+      return RNFS.writeFile(f1, '4piV4piC4piF', 'base64');
     }).then(() => {
       return RNFS.readFile(f1, 'base64').then(contents => {
         this.assert('Read F1', contents, '4piV4piC4piF');
@@ -204,9 +195,7 @@ var RNFSApp = React.createClass({
         this.assert('Stat', info.size, 9);
       });
     }).then(() => {
-      return RNFS.unlink(f1).then(result => {
-        this.assert('Unlink', result[0], true);
-      });
+      return RNFS.unlink(f1);
     }).then(result => {
       return RNFS.readdir(RNFS.DocumentDirectoryPath).then(files => {
         this.assert('F1 Gone', files.indexOf('f1') === -1, true);
@@ -221,25 +210,15 @@ var RNFSApp = React.createClass({
     var f2 = RNFS.DocumentDirectoryPath + '/f2';
 
     return Promise.resolve().then(() => {
-      return RNFS.unlink(f1).then(result => {
-        this.assert('Unlink', result[0], true);
-      }, () => void 0 /* Ignore error */);
+      return RNFS.unlink(f1).then(() => { }, () => void 0 /* Ignore error */);
     }).then(() => {
-      return RNFS.unlink(f2).then(result => {
-        this.assert('Unlink', result[0], true);
-      }, () => void 0 /* Ignore error */);
+      return RNFS.unlink(f2).then(() => { }, () => void 0 /* Ignore error */);
     }).then(() => {
-      return RNFS.writeFile(f1, 'foo © bar 𝌆 baz', 'utf8').then(result => {
-        this.assert('Write F1', result[0], true);
-      });
+      return RNFS.writeFile(f1, 'foo © bar 𝌆 baz', 'utf8');
     }).then(() => {
-      return RNFS.appendFile(f1, 'baz 𝌆 bar © foo', 'utf8').then(result => {
-        this.assert('Append F1 (existing)', result[0], true);
-      });
+      return RNFS.appendFile(f1, 'baz 𝌆 bar © foo', 'utf8');
     }).then(() => {
-      return RNFS.appendFile(f2, 'baz 𝌆 bar © foo', 'utf8').then(result => {
-        this.assert('Append F2 (new)', result[0], true);
-      });
+      return RNFS.appendFile(f2, 'baz 𝌆 bar © foo', 'utf8');
     }).then(() => {
       return RNFS.readFile(f1, 'utf8').then(contents => {
         this.assert('Read F1', contents, 'foo © bar 𝌆 bazbaz 𝌆 bar © foo');
@@ -254,8 +233,9 @@ var RNFSApp = React.createClass({
   },
 
   showError: function (err) {
-    this.setState({ output: err.message });
+    this.setState({ output: `ERROR: Code: ${err.code} Message: ${err.message}` });
   },
+
   render: function () {
     return (
       <View style={styles.container} collapsable={false}>
