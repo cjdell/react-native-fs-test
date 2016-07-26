@@ -18,6 +18,8 @@ var {
 
 var RNFS = require('react-native-fs');
 
+var spec = require('./test/rnfs.spec.js');
+
 var testDir1Path = RNFS.DocumentDirectoryPath + '/test-dir-1';
 var testFile1Path = RNFS.DocumentDirectoryPath + '/test-dir-1/test-file-1';
 var testFile2Path = RNFS.DocumentDirectoryPath + '/test-dir-1/test-file-2';
@@ -41,6 +43,54 @@ var RNFSApp = React.createClass({
         uri: ''
       }
     };
+  },
+
+  mochaTest: function () {
+    const tests = [];
+    let beforeEachCallback;
+    let log = '';
+
+    const describe = (name, callback) => {
+      callback();
+    };
+
+    const beforeEach = (callback) => {
+      beforeEachCallback = callback;
+    };
+
+    const it = (name, callback) => {
+      tests.push({ name, callback });
+    };
+
+    const fail = (name, err) => {
+      console.warn(name, err.message);
+    };
+
+    const pass = (name) => {
+      console.log(name);
+      log += `${name}\n`;
+      this.setState({ output: log });
+    };
+
+    spec(describe, beforeEach, it, RNFS);
+
+    let currentTest = Promise.resolve();
+
+    tests.forEach((test) => {
+      try {
+        currentTest = currentTest.then(() => {
+          return beforeEachCallback().then(() => {
+            return test.callback();
+          }).then(() => {
+            pass(test.name);
+          }).catch(err => {
+            fail(test.name, err);
+          });
+        });
+      } catch (err) {
+        fail(test.name, err);
+      }
+    });
   },
 
   mkdirTest: function () {
@@ -241,6 +291,16 @@ var RNFSApp = React.createClass({
       <View style={styles.container} collapsable={false}>
         <View style={styles.panes}>
           <View style={styles.leftPane}>
+            <TouchableHighlight onPress={this.mochaTest}>
+              <View style={styles.button}>
+                <Text style={styles.text}>Mocha Test</Text>
+              </View>
+            </TouchableHighlight>
+
+            <View style={styles.button}>
+              <Text style={styles.text}>---</Text>
+            </View>
+
             <TouchableHighlight onPress={this.autoTest}>
               <View style={styles.button}>
                 <Text style={styles.text}>Auto Test</Text>
