@@ -20,10 +20,6 @@ var RNFS = require('react-native-fs');
 
 var spec = require('./test/rnfs.spec.js');
 
-var testDir1Path = RNFS.DocumentDirectoryPath + '/test-dir-1';
-var testFile1Path = RNFS.DocumentDirectoryPath + '/test-dir-1/test-file-1';
-var testFile2Path = RNFS.DocumentDirectoryPath + '/test-dir-1/test-file-2';
-
 var testImage1Path = RNFS.DocumentDirectoryPath + '/test-image-1.jpg';
 var downloadUrl = 'http://epic.gsfc.nasa.gov/epic-archive/jpg/epic_1b_20151118094121_00.jpg';
 var downloadLargeUrl = 'http://ipv4.download.thinkbroadband.com/100MB.zip';
@@ -91,38 +87,6 @@ var RNFSApp = React.createClass({
         fail(test.name, err);
       }
     });
-  },
-
-  mkdirTest: function () {
-    return RNFS.mkdir(testDir1Path).then(() => {
-      this.setState({ output: 'Directory created' });
-    }).catch(err => this.showError(err));
-  },
-  writeNestedTest: function () {
-    return RNFS.writeFile(testFile1Path, 'I am a file in the directory', 'ascii').then(() => {
-      this.setState({ output: 'Files written successfully' });
-    }).catch(err => this.showError(err));
-  },
-  readNestedTest: function () {
-    return RNFS.readFile(testFile1Path).then((data) => {
-      this.setState({ output: 'Contents: ' + data });
-    }).catch(err => this.showError(err));
-  },
-  readDirNestedTest: function () {
-    return RNFS.readDir(testDir1Path).then(files => {
-      var text = files.map(file => file.name + ' (' + file.size + ') (' + (file.isDirectory() ? 'd' : 'f') + ')').join('\n');
-      this.setState({ output: text });
-    }).catch(err => this.showError(err));
-  },
-  deleteNestedTest: function () {
-    return RNFS.unlink(testFile1Path).then(() => {
-      this.setState({ output: 'Deleted' });
-    }).catch(err => this.showError(err));
-  },
-  deleteDirTest: function () {
-    return RNFS.unlink(testDir1Path).then(() => {
-      this.setState({ output: 'Deleted' });
-    }).catch(err => this.showError(err));
   },
 
   downloadFileTest: function (background, url) {
@@ -207,54 +171,6 @@ var RNFSApp = React.createClass({
     });
   },
 
-  autoTest: function () {
-    var f1 = RNFS.DocumentDirectoryPath + '/f1';
-
-    return Promise.resolve().then(() => {
-      return RNFS.unlink(f1).then(() => { }, () => void 0 /* Ignore error */);
-    }).then(() => {
-      return RNFS.exists(f1).then(exists => {
-        this.assert('Should not exist', exists, false);
-      });
-    }).then(() => {
-      return RNFS.writeFile(f1, 'foo © bar 𝌆 baz', 'utf8');
-    }).then(() => {
-      return RNFS.readdir(RNFS.DocumentDirectoryPath).then(files => {
-        this.assert('F1 Visible', files.indexOf('f1') !== -1, true);
-      });
-    }).then(() => {
-      return RNFS.exists(f1).then(exists => {
-        this.assert('Should exist', exists, true);
-      });
-    }).then(() => {
-      return RNFS.readFile(f1, 'utf8').then(contents => {
-        this.assert('Read F1', contents, 'foo © bar 𝌆 baz');
-      });
-    }).then(() => {
-      return RNFS.stat(f1).then(info => {
-        this.assert('Stat', info.size, 19);
-      });
-    }).then(() => {
-      return RNFS.writeFile(f1, '4piV4piC4piF', 'base64');
-    }).then(() => {
-      return RNFS.readFile(f1, 'base64').then(contents => {
-        this.assert('Read F1', contents, '4piV4piC4piF');
-      });
-    }).then(() => {
-      return RNFS.stat(f1).then(info => {
-        this.assert('Stat', info.size, 9);
-      });
-    }).then(() => {
-      return RNFS.unlink(f1);
-    }).then(result => {
-      return RNFS.readdir(RNFS.DocumentDirectoryPath).then(files => {
-        this.assert('F1 Gone', files.indexOf('f1') === -1, true);
-      });
-    }).then(() => {
-      this.assert('Tests Passed', true, true);
-    }).catch(err => this.showError(err));
-  },
-
   appendTest: function () {
     var f1 = RNFS.DocumentDirectoryPath + '/f1';
     var f2 = RNFS.DocumentDirectoryPath + '/f2';
@@ -296,61 +212,6 @@ var RNFSApp = React.createClass({
                 <Text style={styles.text}>Mocha Test</Text>
               </View>
             </TouchableHighlight>
-
-            <View style={styles.button}>
-              <Text style={styles.text}>---</Text>
-            </View>
-
-            <TouchableHighlight onPress={this.autoTest}>
-              <View style={styles.button}>
-                <Text style={styles.text}>Auto Test</Text>
-              </View>
-            </TouchableHighlight>
-            <TouchableHighlight onPress={this.appendTest}>
-              <View style={styles.button}>
-                <Text style={styles.text}>Append Test</Text>
-              </View>
-            </TouchableHighlight>
-
-            <View style={styles.button}>
-              <Text style={styles.text}>---</Text>
-            </View>
-
-            <TouchableHighlight onPress={this.mkdirTest}>
-              <View style={styles.button}>
-                <Text style={styles.text}>Make Dir</Text>
-              </View>
-            </TouchableHighlight>
-            <TouchableHighlight onPress={this.writeNestedTest}>
-              <View style={styles.button}>
-                <Text style={styles.text}>Write Nested</Text>
-              </View>
-            </TouchableHighlight>
-            <TouchableHighlight onPress={this.readNestedTest}>
-              <View style={styles.button}>
-                <Text style={styles.text}>Read Nested</Text>
-              </View>
-            </TouchableHighlight>
-            <TouchableHighlight onPress={this.readDirNestedTest}>
-              <View style={styles.button}>
-                <Text style={styles.text}>Read Dir</Text>
-              </View>
-            </TouchableHighlight>
-            <TouchableHighlight onPress={this.deleteNestedTest}>
-              <View style={styles.button}>
-                <Text style={styles.text}>Delete Nested</Text>
-              </View>
-            </TouchableHighlight>
-            <TouchableHighlight onPress={this.deleteDirTest}>
-              <View style={styles.button}>
-                <Text style={styles.text}>Delete Dir</Text>
-              </View>
-            </TouchableHighlight>
-
-          </View>
-
-          <View style={styles.rightPane}>
-
             <TouchableHighlight onPress={this.downloadFileTest.bind(this, false, downloadUrl) }>
               <View style={styles.button}>
                 <Text style={styles.text}>DL File</Text>
@@ -371,6 +232,9 @@ var RNFSApp = React.createClass({
                 <Text style={styles.text}>DL File (Big) </Text>
               </View>
             </TouchableHighlight>
+          </View>
+
+          <View style={styles.rightPane}>
             <TouchableHighlight onPress={this.stopDownloadTest}>
               <View style={styles.button}>
                 <Text style={styles.text}>Stop Download</Text>
@@ -386,11 +250,6 @@ var RNFSApp = React.createClass({
                 <Text style={styles.text}>DL Headers</Text>
               </View>
             </TouchableHighlight>
-
-            <View style={styles.button}>
-              <Text style={styles.text}>---</Text>
-            </View>
-
             <TouchableHighlight onPress={this.getFSInfoTest}>
               <View style={styles.button}>
                 <Text style={styles.text}>Get FS Info</Text>
