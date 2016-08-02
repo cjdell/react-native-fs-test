@@ -127,7 +127,7 @@ var RNFSApp = React.createClass({
 
   downloadFileTest: function (background, url) {
     var progress = data => {
-      var percentage = data.bytesWritten / data.contentLength;
+      var percentage = ((100 * data.bytesWritten) / data.contentLength) | 0;
       var text = `Progress ${percentage}%`;
       this.setState({ output: text });
     };
@@ -136,7 +136,7 @@ var RNFSApp = React.createClass({
       jobId1 = res.jobId;
     };
 
-    var progressDivider = 2;
+    var progressDivider = 1;
 
     RNFS.downloadFile({ fromUrl: url, toFile: testImage1Path, begin, progress, background, progressDivider }).then(res => {
       this.setState({ output: JSON.stringify(res) });
