@@ -100,8 +100,6 @@ var RNFSApp = React.createClass({
     };
 
     var begin = res => {
-      jobId = res.jobId;
-
       this.setState({ output: 'Download has begun' });
     };
 
@@ -112,7 +110,11 @@ var RNFSApp = React.createClass({
     // Random file name needed to force refresh...
     const downloadDest = `${RNFS.DocumentDirectoryPath}/${((Math.random() * 1000) | 0)}.jpg`;
 
-    RNFS.downloadFile({ fromUrl: url, toFile: downloadDest, begin, progress, background, progressDivider }).then(res => {
+    const ret = RNFS.downloadFile({ fromUrl: url, toFile: downloadDest, begin, progress, background, progressDivider });
+
+    jobId = ret.jobId;
+
+    ret.promise.then(res => {
       this.setState({ output: JSON.stringify(res) });
       this.setState({ imagePath: { uri: 'file://' + downloadDest } });
 
@@ -152,7 +154,11 @@ var RNFSApp = React.createClass({
         progressCallback: progress1
       };
 
-      return RNFS.uploadFiles(options).then(res => {
+      const ret = RNFS.uploadFiles(options)
+
+      jobId = ret.jobId;
+
+      return ret.promise.then(res => {
         var response = JSON.parse(res.body);
 
         this.assert('Upload should have name', response.myfile.name, 'upload.txt');
