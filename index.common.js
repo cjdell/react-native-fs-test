@@ -20,8 +20,7 @@ var RNFS = require('react-native-fs');
 
 var spec = require('./test/rnfs.spec.js');
 
-var testImage1Path = RNFS.DocumentDirectoryPath + '/test-image-1.jpg';
-var downloadUrl = 'http://epic.gsfc.nasa.gov/epic-archive/jpg/epic_1b_20151118094121_00.jpg';
+var downloadUrl = 'http://lorempixel.com/400/200/';
 var downloadLargeUrl = 'http://ipv4.download.thinkbroadband.com/100MB.zip';
 var downloadRedirectUrl = 'http://buz.co/rnfs/download-redirect.php';
 var uploadUrl1 = 'http://buz.co/rnfs/upload-tester.php';
@@ -29,7 +28,7 @@ var uploadUrl1 = 'http://buz.co/rnfs/upload-tester.php';
 var downloadHeaderUrl = 'http://buz.co/rnfs/download-tester.php';
 var downloadHeaderPath = RNFS.DocumentDirectoryPath + '/headers.json';
 
-var jobId1 = -1, jobId2 = -1;
+var jobId = -1;
 
 var RNFSApp = React.createClass({
   getInitialState: function () {
@@ -90,6 +89,10 @@ var RNFSApp = React.createClass({
   },
 
   downloadFileTest: function (background, url) {
+    if (jobId !== -1) {
+      this.setState({ output: 'A download is already in progress' });
+    }
+
     var progress = data => {
       var percentage = ((100 * data.bytesWritten) / data.contentLength) | 0;
       var text = `Progress ${percentage}%`;
@@ -97,48 +100,68 @@ var RNFSApp = React.createClass({
     };
 
     var begin = res => {
-      jobId1 = res.jobId;
+      jobId = res.jobId;
+
+      this.setState({ output: 'Download has begun' });
     };
 
     var progressDivider = 1;
 
-    RNFS.downloadFile({ fromUrl: url, toFile: testImage1Path, begin, progress, background, progressDivider }).then(res => {
+    this.setState({ imagePath: { uri: '' } });
+
+    // Random file name needed to force refresh...
+    const downloadDest = `${RNFS.DocumentDirectoryPath}/${((Math.random() * 1000) | 0)}.jpg`;
+
+    RNFS.downloadFile({ fromUrl: url, toFile: downloadDest, begin, progress, background, progressDivider }).then(res => {
       this.setState({ output: JSON.stringify(res) });
-      this.setState({ imagePath: { uri: 'file://' + testImage1Path } });
-    }).catch(err => this.showError(err));
+      this.setState({ imagePath: { uri: 'file://' + downloadDest } });
+
+      jobId = -1;
+    }).catch(err => {
+      this.showError(err)
+
+      jobId = -1;
+    });
   },
 
   stopDownloadTest: function () {
-    RNFS.stopDownload(jobId1);
-    RNFS.stopDownload(jobId2);
+    if (jobId !== -1) {
+      RNFS.stopDownload(jobId);
+    } else {
+      this.setState({ output: 'There is no download to stop' });
+    }
   },
 
   uploadFileTest: function () {
-    var progress1 = data => {
-      var text = JSON.stringify(data);
-      this.setState({ output: text });
-    };
+    const uploadSrc = `${RNFS.DocumentDirectoryPath}/upload.txt`;
 
-    var begin1 = res => {
-      jobId1 = res.jobId;
-    };
+    RNFS.writeFile(uploadSrc, 'Some stuff to upload', 'utf8').then(() => {
+      var progress1 = data => {
+        var text = JSON.stringify(data);
+        this.setState({ output: text });
+      };
 
-    var options = {
-      toUrl: uploadUrl1,
-      files: [{ name: 'myfile', filename: 'thing.jpg', filepath: testImage1Path, filetype: 'image/jpeg' }],
-      beginCallback: begin1,
-      progressCallback: progress1
-    };
+      var begin1 = res => {
+        jobId = res.jobId;
+      };
 
-    RNFS.uploadFiles(options).then(res => {
-      var response = JSON.parse(res.body);
+      var options = {
+        toUrl: uploadUrl1,
+        files: [{ name: 'myfile', filename: 'upload.txt', filepath: uploadSrc, filetype: 'text/plain' }],
+        beginCallback: begin1,
+        progressCallback: progress1
+      };
 
-      this.assert('Upload should have name', response.myfile.name, 'thing.jpg');
-      this.assert('Upload should have type', response.myfile.type, 'image/jpeg');
-      this.assert('Upload should have size', response.myfile.size, 312428);
+      return RNFS.uploadFiles(options).then(res => {
+        var response = JSON.parse(res.body);
 
-      this.setState({ output: JSON.stringify(res) });
-    }).catch(err => this.showError(err))
+        this.assert('Upload should have name', response.myfile.name, 'upload.txt');
+        this.assert('Upload should have type', response.myfile.type, 'text/plain');
+        this.assert('Upload should have size', response.myfile.size, 20);
+
+        this.setState({ output: 'Upload successful' });
+      });
+    }).catch(err => this.showError(err));
   },
 
   downloadHeaderTest: function () {
@@ -156,7 +179,7 @@ var RNFSApp = React.createClass({
       this.assert('Should contain header for foo', headers['HTTP_FOO'], 'Hello');
       this.assert('Should contain header for bar', headers['HTTP_BAR'], 'World');
 
-      this.setState({ output: content });
+      this.setState({ output: 'Headers downloaded successfully' });
     }).catch(err => this.showError(err));
   },
 
@@ -291,8 +314,8 @@ var styles = StyleSheet.create({
     margin: 10,
   },
   image: {
-    width: 100,
-    height: 100,
+    width: 400,
+    height: 200,
   },
 });
 
