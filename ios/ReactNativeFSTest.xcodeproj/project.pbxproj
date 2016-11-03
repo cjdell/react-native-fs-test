@@ -22,7 +22,7 @@
 		13B07FC11A68108700A75B9A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB71A68108700A75B9A /* main.m */; };
 		146834051AC3E58100842450 /* libReact.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 146834041AC3E56700842450 /* libReact.a */; };
 		832341BD1AAA6AB300B99B32 /* libRCTText.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 832341B51AAA6A8300B99B32 /* libRCTText.a */; };
-		8BD398521CFFA33A00791DDA /* libRNFS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 8BD398511CFFA31500791DDA /* libRNFS.a */; };
+		8B62248B1D99BBE900537B96 /* libRNFS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 8BA30FA61D99AD02004B8F29 /* libRNFS.a */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -103,7 +103,7 @@
 			remoteGlobalIDString = 58B5119B1A9E6C1200147676;
 			remoteInfo = RCTText;
 		};
-		8BD398501CFFA31500791DDA /* PBXContainerItemProxy */ = {
+		8BA30FA51D99AD02004B8F29 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 8BD398421CFFA31400791DDA /* RNFS.xcodeproj */;
 			proxyType = 2;
@@ -149,7 +149,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				8BD398521CFFA33A00791DDA /* libRNFS.a in Frameworks */,
+				8B62248B1D99BBE900537B96 /* libRNFS.a in Frameworks */,
 				146834051AC3E58100842450 /* libReact.a in Frameworks */,
 				00C302E51ABCBA2D00DB3ED1 /* libRCTActionSheet.a in Frameworks */,
 				00C302E71ABCBA2D00DB3ED1 /* libRCTGeolocation.a in Frameworks */,
@@ -316,10 +316,10 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
-		8BD398431CFFA31400791DDA /* Products */ = {
+		8BA30F981D99AD02004B8F29 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				8BD398511CFFA31500791DDA /* libRNFS.a */,
+				8BA30FA61D99AD02004B8F29 /* libRNFS.a */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -431,7 +431,7 @@
 					ProjectRef = 146833FF1AC3E56700842450 /* React.xcodeproj */;
 				},
 				{
-					ProductGroup = 8BD398431CFFA31400791DDA /* Products */;
+					ProductGroup = 8BA30F981D99AD02004B8F29 /* Products */;
 					ProjectRef = 8BD398421CFFA31400791DDA /* RNFS.xcodeproj */;
 				},
 			);
@@ -514,11 +514,11 @@
 			remoteRef = 832341B41AAA6A8300B99B32 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
-		8BD398511CFFA31500791DDA /* libRNFS.a */ = {
+		8BA30FA61D99AD02004B8F29 /* libRNFS.a */ = {
 			isa = PBXReferenceProxy;
 			fileType = archive.ar;
 			path = libRNFS.a;
-			remoteRef = 8BD398501CFFA31500791DDA /* PBXContainerItemProxy */;
+			remoteRef = 8BA30FA51D99AD02004B8F29 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
 /* End PBXReferenceProxy section */
@@ -640,6 +640,7 @@
 					"$(SRCROOT)/../node_modules/react-native/React/**",
 				);
 				INFOPLIST_FILE = ReactNativeFSTest/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				OTHER_LDFLAGS = (
 					"-ObjC",
@@ -659,6 +660,7 @@
 					"$(SRCROOT)/../node_modules/react-native/React/**",
 				);
 				INFOPLIST_FILE = ReactNativeFSTest/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				OTHER_LDFLAGS = (
 					"-ObjC",

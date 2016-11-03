@@ -5,32 +5,31 @@
  */
 'use strict';
 
-var React = require('react');
-var ReactNative = require('react-native');
-var {
+import React, { Component } from 'react';
+import {
   AppRegistry,
   StyleSheet,
   Text,
   View,
   TouchableHighlight,
-  Image,
-} = ReactNative;
+  Image
+} from 'react-native';
 
-var RNFS = require('react-native-fs');
+const RNFS = require('react-native-fs');
 
-var spec = require('./test/rnfs.spec.js');
+const spec = require('./test/rnfs.spec.js');
 
-var downloadUrl = 'http://lorempixel.com/400/200/';
-var downloadLargeUrl = 'http://ipv4.download.thinkbroadband.com/100MB.zip';
-var downloadRedirectUrl = 'http://buz.co/rnfs/download-redirect.php';
-var uploadUrl1 = 'http://buz.co/rnfs/upload-tester.php';
+const downloadUrl = 'http://lorempixel.com/400/200/';
+const downloadLargeUrl = 'http://ipv4.download.thinkbroadband.com/100MB.zip';
+const downloadRedirectUrl = 'http://buz.co/rnfs/download-redirect.php';
+const uploadUrl1 = 'http://buz.co/rnfs/upload-tester.php';
 
-var downloadHeaderUrl = 'http://buz.co/rnfs/download-tester.php';
-var downloadHeaderPath = RNFS.DocumentDirectoryPath + '/headers.json';
+const downloadHeaderUrl = 'http://buz.co/rnfs/download-tester.php';
+const downloadHeaderPath = RNFS.DocumentDirectoryPath + '/headers.json';
 
-var jobId = -1;
+const jobId = -1;
 
-var RNFSApp = React.createClass({
+const RNFSApp = React.createClass({
   getInitialState: function () {
     return {
       output: 'Doc folder: ' + RNFS.DocumentDirectoryPath,
@@ -93,17 +92,17 @@ var RNFSApp = React.createClass({
       this.setState({ output: 'A download is already in progress' });
     }
 
-    var progress = data => {
-      var percentage = ((100 * data.bytesWritten) / data.contentLength) | 0;
-      var text = `Progress ${percentage}%`;
+    const progress = data => {
+      const percentage = ((100 * data.bytesWritten) / data.contentLength) | 0;
+      const text = `Progress ${percentage}%`;
       this.setState({ output: text });
     };
 
-    var begin = res => {
+    const begin = res => {
       this.setState({ output: 'Download has begun' });
     };
 
-    var progressDivider = 1;
+    const progressDivider = 1;
 
     this.setState({ imagePath: { uri: '' } });
 
@@ -138,16 +137,16 @@ var RNFSApp = React.createClass({
     const uploadSrc = `${RNFS.DocumentDirectoryPath}/upload.txt`;
 
     RNFS.writeFile(uploadSrc, 'Some stuff to upload', 'utf8').then(() => {
-      var progress1 = data => {
-        var text = JSON.stringify(data);
+      const progress1 = data => {
+        const text = JSON.stringify(data);
         this.setState({ output: text });
       };
 
-      var begin1 = res => {
+      const begin1 = res => {
         jobId = res.jobId;
       };
 
-      var options = {
+      const options = {
         toUrl: uploadUrl1,
         files: [{ name: 'myfile', filename: 'upload.txt', filepath: uploadSrc, filetype: 'text/plain' }],
         beginCallback: begin1,
@@ -159,7 +158,7 @@ var RNFSApp = React.createClass({
       jobId = ret.jobId;
 
       return ret.promise.then(res => {
-        var response = JSON.parse(res.body);
+        const response = JSON.parse(res.body);
 
         this.assert('Upload should have name', response.myfile.name, 'upload.txt');
         this.assert('Upload should have type', response.myfile.type, 'text/plain');
@@ -171,16 +170,16 @@ var RNFSApp = React.createClass({
   },
 
   downloadHeaderTest: function () {
-    var headers = {
+    const headers = {
       'foo': 'Hello',
       'bar': 'World'
     };
 
     // Download the file then read it, it should contain the headers we sent
-    RNFS.downloadFile({ fromUrl: downloadHeaderUrl, toFile: downloadHeaderPath, headers }).then(res => {
+    RNFS.downloadFile({ fromUrl: downloadHeaderUrl, toFile: downloadHeaderPath, headers }).promise.then(res => {
       return RNFS.readFile(downloadHeaderPath, 'utf8');
     }).then(content => {
-      var headers = JSON.parse(content);
+      const headers = JSON.parse(content);
 
       this.assert('Should contain header for foo', headers['HTTP_FOO'], 'Hello');
       this.assert('Should contain header for bar', headers['HTTP_BAR'], 'World');
@@ -201,8 +200,8 @@ var RNFSApp = React.createClass({
   },
 
   appendTest: function () {
-    var f1 = RNFS.DocumentDirectoryPath + '/f1';
-    var f2 = RNFS.DocumentDirectoryPath + '/f2';
+    const f1 = RNFS.DocumentDirectoryPath + '/f1';
+    const f2 = RNFS.DocumentDirectoryPath + '/f2';
 
     return Promise.resolve().then(() => {
       return RNFS.unlink(f1).then(() => { }, () => void 0 /* Ignore error */);
@@ -296,7 +295,7 @@ var RNFSApp = React.createClass({
   }
 });
 
-var styles = StyleSheet.create({
+const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#F5FCFF',
