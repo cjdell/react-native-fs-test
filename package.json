@@ -9,7 +9,7 @@
   "dependencies": {
     "react": "15.4.1",
     "react-native": "0.39.0",
-    "react-native-fs": "git+https://github.com/johanneslumpe/react-native-fs.git"
+    "react-native-fs": "git+https://github.com/johanneslumpe/react-native-fs.git#065acc400f6da3ce1cdf504ecc8be290a63bdb92"
   },
   "devDependencies": {
     "bluebird": "^3.4.1",
