@@ -27,7 +27,7 @@ const uploadUrl1 = 'http://buz.co/rnfs/upload-tester.php';
 const downloadHeaderUrl = 'http://buz.co/rnfs/download-tester.php';
 const downloadHeaderPath = RNFS.DocumentDirectoryPath + '/headers.json';
 
-const jobId = -1;
+let jobId = -1;
 
 const RNFSApp = React.createClass({
   getInitialState: function () {
