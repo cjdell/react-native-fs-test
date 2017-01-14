@@ -1,5 +1,7 @@
 "use strict";
 
+const Platform = require('react-native').Platform;
+
 const expect = require('expect.js');
 
 module.exports = function (describe, beforeEach, it, RNFS) {
@@ -8,7 +10,8 @@ module.exports = function (describe, beforeEach, it, RNFS) {
   describe('filesystem', function () {
     beforeEach(function () {
       // Blow away the working directory before each test and recreate it empty
-      return RNFS.unlink(root).catch(() => { /* ignore */ }).then(() => {
+      return RNFS.unlink(root).catch(() => { /* ignore */
+      }).then(() => {
         return RNFS.mkdir(root);
       });
     });
@@ -95,11 +98,11 @@ module.exports = function (describe, beforeEach, it, RNFS) {
       const textFilePath = `${root}/file.txt`;
 
       return Promise.resolve().then(() => {
-        return RNFS.writeFile(textFilePath, 'Some contents', { encoding: 'utf8' }).then(res => {
+        return RNFS.writeFile(textFilePath, 'Some contents', {encoding: 'utf8'}).then(res => {
           expect(res).to.be(undefined);
         });
       }).then(() => {
-        return RNFS.readFile(textFilePath, { encoding: 'utf8' }).then(res => {
+        return RNFS.readFile(textFilePath, {encoding: 'utf8'}).then(res => {
           expect(res).to.be('Some contents');
         });
       }).then(() => {
@@ -121,7 +124,7 @@ module.exports = function (describe, beforeEach, it, RNFS) {
       const copyFilePath = `${root}/copy.txt`;
 
       return Promise.resolve().then(() => {
-        return RNFS.writeFile(origFilePath, 'Some contents', { encoding: 'utf8' }).then(res => {
+        return RNFS.writeFile(origFilePath, 'Some contents', {encoding: 'utf8'}).then(res => {
           expect(res).to.be(undefined);
         });
       }).then(() => {
@@ -129,11 +132,11 @@ module.exports = function (describe, beforeEach, it, RNFS) {
           expect(res).to.be(undefined);
         });
       }).then(() => {
-        return RNFS.readFile(origFilePath, { encoding: 'utf8' }).then(res => {
+        return RNFS.readFile(origFilePath, {encoding: 'utf8'}).then(res => {
           expect(res).to.be('Some contents');
         });
       }).then(() => {
-        return RNFS.readFile(copyFilePath, { encoding: 'utf8' }).then(res => {
+        return RNFS.readFile(copyFilePath, {encoding: 'utf8'}).then(res => {
           expect(res).to.be('Some contents');
         });
       });
@@ -144,7 +147,7 @@ module.exports = function (describe, beforeEach, it, RNFS) {
       const moveFilePath = `${root}/move.txt`;
 
       return Promise.resolve().then(() => {
-        return RNFS.writeFile(origFilePath, 'Some contents', { encoding: 'utf8' }).then(res => {
+        return RNFS.writeFile(origFilePath, 'Some contents', {encoding: 'utf8'}).then(res => {
           expect(res).to.be(undefined);
         });
       }).then(() => {
@@ -156,7 +159,7 @@ module.exports = function (describe, beforeEach, it, RNFS) {
           expect(res).to.be(false);
         });
       }).then(() => {
-        return RNFS.readFile(moveFilePath, { encoding: 'utf8' }).then(res => {
+        return RNFS.readFile(moveFilePath, {encoding: 'utf8'}).then(res => {
           expect(res).to.be('Some contents');
         });
       });
@@ -181,5 +184,52 @@ module.exports = function (describe, beforeEach, it, RNFS) {
         expect(err.code).to.be('EISDIR');
       });
     });
+
+    /**
+     * Android Assets Support Tests
+     */
+    if (Platform.OS === 'android') {
+      const assetsTestFilePath = 'testFile.txt';
+      const assetsTestFileTextContent = 'this is a test file';
+
+      it('can get a file list in the Android Assets folder', function () {
+        return RNFS.readDirAssets('/').then(res => {
+          expect(res.length).to.be.greaterThan(1);
+        })
+      });
+
+      it('can read a text file in the Android Assets folder', function () {
+        return RNFS.readFileAssets(assetsTestFilePath).then(res => {
+          expect(res).to.equal('this is a test file');
+        });
+      });
+
+      it('can tell if an Android Assets file is missing', function () {
+        return RNFS.existsAssets('testFileNotHere.txt').then(res => {
+          expect(res).to.equal(false);
+        });
+      });
+
+      it('can copy a file from Android Assets to documents folder and read it', function () {
+        const destinationPath = `${RNFS.DocumentDirectoryPath}/${assetsTestFilePath}`;
+        RNFS.exists(destinationPath)
+          .then(exists=>{
+            if (exists) {
+              return RNFS.unlink(destinationPath)
+            }
+          })
+          .then(() => {
+            return RNFS.copyFileAssets(assetsTestFilePath, destinationPath)
+          })
+          .then(() => {
+            return RNFS.readFile(destinationPath)
+          })
+          .then((res) => {
+            expect(res).to.equal(assetsTestFileTextContent);
+          });
+      });
+
+    }
   });
 };
+
